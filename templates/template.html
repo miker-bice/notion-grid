@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Notion Gallery Widget</title>
+<style>
+  body {
+    font-family: Inter, system-ui, sans-serif;
+    background: #f6f7fb;
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+    margin: 0;
+  }
+  .container { 
+    max-width: 960px; 
+    width: 100%; 
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  /* Hide cards by default to prevent flash-of-all-items.
+     JS will add .visible to show them. */
+  .card {
+    display: none;
+    position: relative;
+    /* width: 100%; */
+    aspect-ratio: 3/1;
+    max-width: 1350px;
+    /* max-height: 1080px; */
+    padding-top: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #ddd;
+  }
+  .card.visible { 
+    display: block; 
+  }
+
+  .main-image-container img {
+    position: absolute;
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    object-fit: cover;
+  }
+  .overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    padding: 10px;
+    background: linear-gradient(to top, rgba(0,0,0,0.45), rgba(0,0,0,0));
+    opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+
+  /* Icon overlays */
+  .icon-left,
+  .icon-right {
+    position: absolute;
+    width: 30px;
+    z-index: 2;
+    top: 5px;
+  }
+  .icon-left { 
+    right: 5px; 
+  }
+  .icon-right { 
+    right: 5px; 
+  }
+
+  .card:hover .overlay { 
+    opacity: 1; 
+  }
+  .post-date {
+    color: white;
+    font-size: 13px;
+    background: rgba(255,255,255,0.1);
+    padding: 4px 8px;
+    border-radius: 8px;
+  }
+
+  /* Load more button styles */
+  .load-more-container {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .load-more-btn {
+    background-color: #0073e6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .load-more-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  .refresh-btn {
+    background-color: #0073e6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .refresh-btn-container {
+    text-align: end;
+    padding: 10px 0px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="refresh-btn-container">
+    <a href="/">
+        <button class="refresh-btn">Refresh Posts</button>
+    </a>
+  </div>
+  <div class="grid" id="gallery">
+    {% for item in items %}
+    <div class="card" data-index="{{ loop.index0 }}">
+      {% if not item.pinned %}
+        {% if item.content_type == "Reels" %}
+          <img class="icon-left" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Video_Camera_Icon_%28white%29.svg/640px-Video_Camera_Icon_%28white%29.svg.png" alt="Reels" loading="lazy" />
+        {% elif item.content_type == "Carousel" %}
+          <img class="icon-left" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Documents_icon_-_noun_project_5020_-_white.svg/640px-Documents_icon_-_noun_project_5020_-_white.svg.png" alt="Carousel" loading="lazy" />
+        {% endif %}
+      {% endif %}  
+      <!-- Pinned Icon (Top Right) -->
+      {% if item.pinned %}
+        <img class="icon-right" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Pin_-_Delapouite_-_white_-_game-icons.svg/640px-Pin_-_Delapouite_-_white_-_game-icons.svg.png" alt="Pinned" loading="lazy" />
+      {% endif %}
+      <div class="main-image-container">
+        <img src="{{ item.attachment_url }}" alt="{{ item.name }}" loading="lazy" />
+      </div>
+      <div class="overlay">
+        <div class="post-date">{{ item.publish_date }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="load-more-container">
+    <button id="loadMoreBtn" class="load-more-btn">Load More</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  const INITIAL_COUNT = 9;        // how many to show initially
+  const maxItems = Math.min({{ items|length }}, 90); // server-side count capped at 90
+  const cards = Array.from(document.querySelectorAll('.card'));
+  const loadMoreBtn = document.getElementById('loadMoreBtn');
+
+  // Show the first N items (or all if fewer than INITIAL_COUNT)
+  function showInitial() {
+    const toShow = Math.min(INITIAL_COUNT, maxItems);
+    for (let i = 0; i < toShow; i++) {
+      if (cards[i]) cards[i].classList.add('visible');
+    }
+    // If there are no more items to load, hide the button
+    if (maxItems <= INITIAL_COUNT) {
+      loadMoreBtn.style.display = 'none';
+    }
+  }
+
+  // Reveal all remaining items (this is what you wanted)
+  function revealAllRemaining() {
+    for (let i = 0; i < maxItems; i++) {
+      if (cards[i]) cards[i].classList.add('visible');
+    }
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.textContent = 'No More Posts';
+  }
+
+  // Safety: if there are zero items, hide the button
+  if (maxItems === 0) {
+    loadMoreBtn.style.display = 'none';
+  }
+
+  // Initial render
+  showInitial();
+
+  // Click handler: reveal remaining items
+  loadMoreBtn.addEventListener('click', revealAllRemaining);
+})();
+</script>
+</body>
+</html>
