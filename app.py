@@ -32,6 +32,15 @@ headers = {
     "Content-type": "application/json"
 }
 
+@app.template_filter("format_date")
+def format_date(value, format="%m-%d-%Y"):
+    try:
+        date_obj = datetime.fromisoformat(value)
+        return date_obj.strftime(format)
+    except Exception:
+        return value 
+    
+
 def fetch_items():
     # fetch the pinned posts
     pinned_payload = {
@@ -104,7 +113,7 @@ def fetch_items():
 
         items.append({
             "name": result_prop["Name"]["title"][0]["text"]["content"],
-            "publish_date": publish_date_str,
+            "publish_date": format_date(publish_date_str),
             "attachment_name": result_prop["Attachment"]["files"][0]["name"],
             "attachment_url": result_prop["Attachment"]["files"][0]["external"]["url"],
             "content_type": result_prop["Content Type"]["select"]["name"],
@@ -122,15 +131,18 @@ def fetch_items():
 
     return pinned_items + non_pinned_items
 
+
 @app.route("/")
 def index():
     items = fetch_items()
     return render_template(TEMPLATE_FILE_NAME, items=items)
 
+
 @app.route("/refresh")
 def refresh_data():
     items = fetch_items()
     return render_template(TEMPLATE_FILE_NAME, items=items)
+
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
