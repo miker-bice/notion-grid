@@ -20,7 +20,7 @@
   .grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    gap: 5px;
   }
 
   /* Hide cards by default to prevent flash-of-all-items.
@@ -34,7 +34,7 @@
     /* max-height: 1080px; */
     padding-top: 100%;
     overflow: hidden;
-    border-radius: 12px;
+    /* border-radius: 12px; */
     background: #ddd;
   }
   .card.visible { 
@@ -55,7 +55,7 @@
     display: flex;
     align-items: flex-end;
     padding: 10px;
-    background: linear-gradient(to top, rgba(0,0,0,0.45), rgba(0,0,0,0));
+    background: linear-gradient(rgba(0,0,0,0.80));
     opacity: 0;
     transition: opacity 0.18s ease;
   }
@@ -84,6 +84,9 @@
     background: rgba(255,255,255,0.1);
     padding: 4px 8px;
     border-radius: 8px;
+  }
+  .post-date p {
+    margin: 0px;  
   }
 
   /* Load more button styles */
@@ -131,20 +134,23 @@
     <div class="card" data-index="{{ loop.index0 }}">
       {% if not item.pinned %}
         {% if item.content_type == "Reels" %}
-          <img class="icon-left" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Video_Camera_Icon_%28white%29.svg/640px-Video_Camera_Icon_%28white%29.svg.png" alt="Reels" loading="lazy" />
+          <img class="icon-left" src={{ url_for('static', filename='icons/reel.png') }} alt="Reels" loading="lazy" />
         {% elif item.content_type == "Carousel" %}
-          <img class="icon-left" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Documents_icon_-_noun_project_5020_-_white.svg/640px-Documents_icon_-_noun_project_5020_-_white.svg.png" alt="Carousel" loading="lazy" />
+          <img class="icon-left" src={{ url_for('static', filename='icons/carousel.png') }} alt="Carousel" loading="lazy" />
         {% endif %}
       {% endif %}  
       <!-- Pinned Icon (Top Right) -->
       {% if item.pinned %}
-        <img class="icon-right" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Pin_-_Delapouite_-_white_-_game-icons.svg/640px-Pin_-_Delapouite_-_white_-_game-icons.svg.png" alt="Pinned" loading="lazy" />
+        <img class="icon-right" src={{ url_for('static', filename='icons/pin.png') }} alt="Pinned" loading="lazy" />
       {% endif %}
       <div class="main-image-container">
         <img src="{{ item.attachment_url }}" alt="{{ item.name }}" loading="lazy" />
       </div>
       <div class="overlay">
-        <div class="post-date">{{ item.publish_date }}</div>
+        <div class="post-date">
+          <p>{{ item.publish_date }}</p>
+          <p>{{ item.name }}</p>
+        </div>
       </div>
     </div>
     {% endfor %}
