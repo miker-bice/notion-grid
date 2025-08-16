@@ -95,19 +95,19 @@ def fetch_items():
         # check if the required_properties exist
         for property in required_properties:
             if property not in result_prop:
-                raise KeyError(f"Missing required property: {property} in Notion database item: {json.dumps(result, indent=2)}")
+                raise KeyError(f"Missing required property: {property} in Notion database item: {json.dumps(result)}")
             
         # checking for nested properties
         if "checkbox" not in result_prop["Pinned"]:
-            raise KeyError(f"'Pinned' property missing 'checkbox' key in: {json.dumps(result, indent=2)}")
+            raise KeyError(f"'Pinned' property missing 'checkbox' key in: {json.dumps(result)}")
         if not result_prop["Publish Date"]["date"] or "start" not in result_prop["Publish Date"]["date"]:
-            raise KeyError(f"'Publish Date' property missing 'date.start' in: {json.dumps(result, indent=2)}")
+            raise KeyError(f"'Publish Date' property missing 'date.start' in: {json.dumps(result)}")
         if not result_prop["Name"]["title"]:
-            raise KeyError(f"'Name' property missing 'title' in: {json.dumps(result, indent=2)}")
+            raise KeyError(f"'Name' property missing 'title' in: {json.dumps(result)}")
         if not result_prop["Attachment"]["files"]:
-            raise KeyError(f"'Attachment' property missing 'files' in: {json.dumps(result, indent=2)}")
+            raise KeyError(f"'Attachment' property missing 'files' in: {json.dumps(result)}")
         if "name" not in result_prop["Content Type"]["select"]:
-            raise KeyError(f"'Content Type' property missing 'select.name' in: {json.dumps(result, indent=2)}")
+            raise KeyError(f"'Content Type' property missing 'select.name' in: {json.dumps(result)}")
         
         pinned = result_prop["Pinned"]["checkbox"]
         publish_date_str = result_prop["Publish Date"]["date"]["start"]
