@@ -85,6 +85,8 @@ def fetch_items():
     # combine
     db_results = pinned_results + non_pinned_results
 
+    print(json.dumps(db_results))
+
     items = []
     for result in db_results:
         result_prop = result["properties"]
@@ -111,11 +113,16 @@ def fetch_items():
         publish_date_str = result_prop["Publish Date"]["date"]["start"]
         last_edited_str = result["last_edited_time"]
 
+        # attachment when using external link
+        # result_prop["Attachment"]["files"][0]["external"]["url"]
+
+        # TODO: make logic to identify the file upload and link attachment in result_prop["Attachment"]["files"]
+
         items.append({
             "name": result_prop["Name"]["title"][0]["text"]["content"],
             "publish_date": format_date(publish_date_str),
             "attachment_name": result_prop["Attachment"]["files"][0]["name"],
-            "attachment_url": result_prop["Attachment"]["files"][0]["external"]["url"],
+            "attachment_url": result_prop["Attachment"]["files"][0]["file"]["url"],
             "content_type": result_prop["Content Type"]["select"]["name"],
             "pinned": pinned,
             "last_edited": datetime.fromisoformat(last_edited_str.replace("Z", "+00:00"))
