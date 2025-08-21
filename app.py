@@ -106,7 +106,12 @@ def fetch_items(content_type="moiraphilyn"):
             attachment_name = file_entry.get("name")
             attachment_url = file_entry.get("file", {}).get("url")
 
-        post_content_type = result_prop.get("Content Type", {}).get("select", {}).get("name", None)
+        post_content_type = result_prop.get("Content Type", {}).get("select")
+
+        if post_content_type:
+            post_content_type = post_content_type.get("name")
+        else:
+            post_content_type = None
 
         formatted_publish_date = None
         if publish_date_str:
