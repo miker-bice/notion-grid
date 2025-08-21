@@ -117,17 +117,30 @@
     cursor: pointer;
   }
   .refresh-btn-container {
-    text-align: end;
+    /* text-align: end; */
     padding: 10px 0px;
   }
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="refresh-btn-container">
-    <a href="/">
-        <button class="refresh-btn">Refresh Posts</button>
-    </a>
+  <div class="buttons-container">
+    <div class="form-container">
+      <form action="{{ url_for('refresh_data') }}" method="post">
+        <label for="type_filter">Type:</label>
+        <select name="type_filter" id="type_filter">
+          {% for type in types %}
+            <option value="{{ type }}" {% if current_filter == type %} selected {% endif %}>{{ type }}</option>
+          {% endfor %}
+        </select>
+        <div class="refresh-btn-container">
+          <button class="refresh-btn" type="submit">Refresh Posts</button>
+          <!-- <a href="/">
+              <button class="refresh-btn">Refresh Posts</button>
+          </a> -->
+        </div>
+      </form>
+    </div>
   </div>
   <div class="grid" id="gallery">
     {% for item in items %}
@@ -144,7 +157,11 @@
         <img class="icon-right" src={{ url_for('static', filename='icons/pin.png') }} alt="Pinned" loading="lazy" />
       {% endif %}
       <div class="main-image-container">
-        <img src="{{ item.attachment_url }}" alt="{{ item.name }}" loading="lazy" />
+        {% if item.attachment_url != None %}
+          <img src="{{ item.attachment_url }}" alt="{{ item.name }}" loading="lazy" />
+        {% else %}
+          <img src="{{ url_for('static', filename='icons/missing-image.jpg') }}" alt="missing-image" loading="lazy" />
+        {% endif %}
       </div>
       <div class="overlay">
         <div class="post-date">
