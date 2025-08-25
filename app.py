@@ -46,7 +46,7 @@ def fetch_items(content_type="moiraphilyn"):
         "filter": {
             "and": [
                 {"property": "Pinned", "checkbox": {"equals": True}},
-                {"property": "Name", "title": {"contains": str(content_type)}}
+                {"property": "Name", "title": {"equals": str(content_type)}}
             ]
         },
         "sorts": [{"property": "Publish Date", "direction": "descending"}]
@@ -65,7 +65,7 @@ def fetch_items(content_type="moiraphilyn"):
         "filter": {
             "and": [
                 {"property": "Pinned", "checkbox": {"equals": False}},
-                {"property": "Name", "title": {"contains": str(content_type)}}
+                {"property": "Name", "title": {"equals": str(content_type)}}
             ]
         },
         "sorts": [{"property": "Publish Date", "direction": "descending"}]
