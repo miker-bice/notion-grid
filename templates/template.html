@@ -181,7 +181,7 @@
 <script>
 (function() {
   const INITIAL_COUNT = 9;        // how many to show initially
-  const maxItems = Math.min({{ items|length }}, 90); // server-side count capped at 90
+  const maxItems = Math.min({{ items|length }}, 100); // server-side count capped at 90
   const cards = Array.from(document.querySelectorAll('.card'));
   const loadMoreBtn = document.getElementById('loadMoreBtn');
 
