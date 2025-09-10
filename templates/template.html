@@ -158,7 +158,8 @@
       {% endif %}
       <div class="main-image-container">
         {% if item.attachment_url != None %}
-          <img src="{{ item.attachment_url }}" alt="{{ item.name }}" loading="lazy" />
+          <!-- <img src="{{ item.attachment_url }}" alt="{{ item.name }}" loading="lazy" /> -->
+          <img src="{{ url_for('proxy_img') }}?url={{ item.attachment_url | urlencode }}" alt="{{ item.name }}" loading="lazy" />
         {% else %}
           <img src="{{ url_for('static', filename='icons/missing-image.jpg') }}" alt="missing-image" loading="lazy" />
         {% endif %}

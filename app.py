@@ -1,9 +1,10 @@
 from datetime import datetime
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response, abort
 from helpers.notion import get_data_from_notion_db
 from helpers.utils import extract_db_id_from_url
 import json
 import os
+import requests
 
 app = Flask(__name__, template_folder="templates")
 
@@ -143,8 +144,6 @@ def fetch_items(content_type="moiraphilyn"):
     pinned_items = [item for item in items if item["pinned"]]
     non_pinned_items = [item for item in items if not item["pinned"]]
 
-    print(non_pinned_items)
-
     # sort the pinned items
     # the pinned_items should remain on top, and pinned_items are sorted by descending order
     pinned_items.sort(key=lambda x: x["last_edited"], reverse=True)
@@ -164,6 +163,25 @@ def refresh_data():
     selected_content_type = request.form.get("type_filter", "moiraphilyn")
     items = fetch_items(content_type=selected_content_type.lower())
     return render_template(TEMPLATE_FILE_NAME, items=items, types=CONTENT_TYPES, current_filter=selected_content_type)
+
+
+@app.route("/img")
+def proxy_img():
+    url = request.args.get("url")
+    if not url:
+        abort(400, "Missing URL parameter")
+
+    try:
+        response = requests.get(url, stream=True, timeout=15)
+        response.raise_for_status()
+
+        content_type = response.headers.get("Content-Type", "image/jpeg")
+
+        return Response(response.content, mimetype=content_type, headers={
+            "Cache-Control": "public, max-age=31536000"
+        })
+    except Exception as e:
+        abort(500, f"Image proxy failed {str(e)}")
 
 
 if __name__ == "__main__":
