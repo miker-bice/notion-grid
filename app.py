@@ -59,6 +59,7 @@ def fetch_items(content_type="moiraphilyn"):
         raise SystemExit(error_details)
 
     pinned_results = pinned_response.json()["results"]
+    print(f"PINNED POST FETCH: {len(pinned_results)}")
 
     # fetch latest non-pinned posts
     non_pinned_payload = {
@@ -78,11 +79,12 @@ def fetch_items(content_type="moiraphilyn"):
         raise SystemExit(error_details)
 
     non_pinned_results = non_pinned_response.json()["results"]
+    print(f"NON PINNED POST FETCH: {len(non_pinned_results)}")
 
     # combine
     db_results = pinned_results + non_pinned_results
 
-    print(json.dumps(db_results))
+    # print(json.dumps(db_results))
 
     items = []
     for result in db_results:
@@ -128,7 +130,6 @@ def fetch_items(content_type="moiraphilyn"):
                 parsed_last_edited_date = last_edited_str
 
         # TODO: make logic to identify the file upload and link attachment in result_prop["Attachment"]["files"]
-
         items.append({
             "name": name,
             "publish_date": formatted_publish_date,
@@ -141,6 +142,8 @@ def fetch_items(content_type="moiraphilyn"):
 
     pinned_items = [item for item in items if item["pinned"]]
     non_pinned_items = [item for item in items if not item["pinned"]]
+
+    print(non_pinned_items)
 
     # sort the pinned items
     # the pinned_items should remain on top, and pinned_items are sorted by descending order
